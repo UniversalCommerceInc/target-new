@@ -1,0 +1,51 @@
+.slider-wrapper {
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 16px; /* Space for the scrollbar */
+  }
+  
+  .slider-wrapper::-webkit-scrollbar {
+    height: 1px;
+  }
+  
+  .slider-wrapper:hover::-webkit-scrollbar {
+    height: 2px;
+  }
+  
+  .slider-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .slider-wrapper::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+  }
+  
+  .slider-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #888;
+  }
+  
+  /* Custom dots line */
+  .slick-dots {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+  }
+  
+  .slick-dots li {
+    margin: 0 3px;
+  }
+  
+  .slick-dots-line {
+    width: 20px;
+    height: 2px;
+    background: #ccc;
+  }
+  
+  .slick-dots .slick-active .slick-dots-line {
+    background: #000;
+  }
+  
