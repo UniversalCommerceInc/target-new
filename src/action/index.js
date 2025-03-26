@@ -238,6 +238,102 @@ export const createOrders = (orderData) => {
   });
 };
 
+
+export const getStore = () => {
+  const url = "Customer/getStore";
+  const token = localStorage.getItem("token");
+  const voltmxToken = localStorage.getItem("voltmxToken");
+
+  return new Promise((resolve, reject) => {
+    post(url, {}, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "X-Voltmx-Authorization": voltmxToken,
+        "Accept": "application/json",
+        "Cookie": localStorage.getItem("cookies")
+      }
+    })
+    .then((response) => {
+      if (response.status === 200) {
+        resolve(response.data.results);
+      }
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  });
+};
+export const associateStore = () => {
+  const url = "Customer/associateStore";
+  
+  const token = localStorage.getItem("token");
+  const voltmxToken = localStorage.getItem("voltmxToken");
+  const orderId = localStorage.getItem("orderId");
+  const storeKey = localStorage.getItem("storeKey");
+  const version = localStorage.getItem("orderVersion");
+
+  const data = {
+    orderid: orderId,
+    storekey: storeKey,
+    version: version
+  };
+
+  return new Promise((resolve, reject) => {
+    post(url, data, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "X-Voltmx-Authorization": voltmxToken,
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Cookie": localStorage.getItem("cookies")
+      }
+    })
+    .then((response) => {
+      // if (response.status === 200) {
+        resolve(response.data);
+      // }
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  });
+};
+export const addDeliveryType = () => {
+  const url = "Customer/addDeliveryType";
+  
+  const token = localStorage.getItem("token");
+  const voltmxToken = localStorage.getItem("voltmxToken");
+  const orderId = localStorage.getItem("orderId");
+  const deliveryType = localStorage.getItem("deliveryType");
+  const version = localStorage.getItem("orderVersion");
+
+  const data = {
+    orderid: orderId,
+    deliverytype: deliveryType,
+    version: version
+  };
+
+  return new Promise((resolve, reject) => {
+    post(url, data, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "X-Voltmx-Authorization": voltmxToken,
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Cookie": localStorage.getItem("cookies")
+      }
+    })
+    .then((response) => {
+      // if (response.status === 200) {
+        resolve(response.data);
+      // }
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  });
+};
+
 // Function to create payment
 export const createPayment = (paymentData) => {
   const url = "Customer/createPayment";

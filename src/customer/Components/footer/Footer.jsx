@@ -43,7 +43,7 @@ const FooterColumn = ({ title, links }) => {
       <h4 className="font-bold mb-4">{title}</h4>
       <ul className={spaceClasses}>
         {links.map((link, index) => (
-          <li key={index}><a href="#" className={linkClasses}>{link}</a></li>
+          <li key={index}><a href="/eNew_Signup" className={linkClasses}>{link}</a></li>
         ))}
       </ul>
     </div>

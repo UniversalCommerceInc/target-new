@@ -223,7 +223,7 @@ export default function Navigation() {
                         : "https://www.target.com.au/medias/auth0/target.svg"
                     }
                     alt="Shopwithzosh"
-                    className="h-auto w-[60px] md:w-[120px]"
+                    className={isSmallScreen?"h-20 w-[60px]  md:w-[120px]":"h-24 mt-4 w-[60px]  md:w-[120px]"}
                   />
                 </Link>
               </div>

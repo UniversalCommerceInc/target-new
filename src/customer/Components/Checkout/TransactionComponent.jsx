@@ -20,12 +20,14 @@ const TransactionComponent = () => {
   // State for cart and user authentication
   const cart = useSelector((state) => state?.cartItems?.cartItems);
   const auth = useSelector((state) => state?.auth?.user?.user);
-  const orderid = localStorage.getItem("orderId");
-
-  const [showShippingInfo, setShowShippingInfo] = useState(false);
-  const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
+  
+  // Use state for orderID instead of localStorage
+  const [orderId, setOrderId] = useState(localStorage.getItem("orderId"));
+  const [cartVersion] = useState(localStorage.getItem("cartVersion") || "1");
+  const [orderVersion] = useState(localStorage.getItem("orderVersion") || "1");
 
   const shippingAdd = JSON.parse(localStorage.getItem("shippingAddress")) || {};
+  const [showShippingInfo, setShowShippingInfo] = useState(false);
   const [shippingInfo, setShippingInfo] = useState({
     firstName: "",
     lastName: "",
@@ -39,7 +41,9 @@ const TransactionComponent = () => {
     mobile: "",
     email: "",
   });
-console.log(orderid,"payment")
+
+  const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
+
   useEffect(() => {
     // Load PayPal script
     const loadPaypalScript = async () => {
@@ -78,28 +82,64 @@ console.log(orderid,"payment")
       dispatch(getCartItems());
     } catch (error) {
       console.error("Stripe payment failed:", error);
-      toast.error("Stripe payment failed. Please try again.");
+      toast.error(`Payment failed: ${error?.response?.data?.message || error.message}`);
     }
   };
 
   // ✅ Handle Payment After PayPal Approval (WITHOUT capture())
   const handlePayment = async () => {
     try {
-      const orderid = localStorage.getItem("orderId");
-      if (!orderid) {
+      if (!orderId) {
         throw new Error("Order ID is missing");
       }
-      // localStorage.setItem("state", null);
 
-      navigate(`/payment/${orderid}`);
+      navigate(`/payment/${orderId}`);
     } catch (error) {
       console.error("Error in handlePayment:", error);
       toast.error("Payment failed. Please try again.");
     }
   };
-  
 
-  
+  // ✅ Handle Order Placement (Stripe and PayPal)
+  const handlePlaceOrder = async () => {
+    try {
+      if (!cart) {
+        throw new Error("Cart is empty");
+      }
+
+      // Create payment
+      const paymentData = {
+        centAmount: cart?.totalPrice?.centAmount || 0,
+      };
+
+      const paymentResponse = await createPayment(paymentData);
+      if (!paymentResponse?.id) {
+        throw new Error("Failed to create payment");
+      }
+
+      console.log("Payment Creation Response:", paymentResponse);
+
+      // Add payment to order
+      const paymentOrderData = {
+        orderID: orderId,
+        paymentID: paymentResponse.id,
+        version: orderVersion,
+      };
+
+      const addPaymentResponse = await addPaymentToOrder(paymentOrderData);
+      if (!addPaymentResponse) {
+        throw new Error("Failed to add payment to order");
+      }
+
+      console.log("Add Payment To Order Response:", addPaymentResponse);
+
+      toast.success("Order placed successfully!");
+      navigate(`/payment/${orderId}`);
+    } catch (error) {
+      console.error("Error placing order:", error);
+      toast.error(`Failed to place the order: ${error.message}`);
+    }
+  };
 
   const onError = (err) => {
     console.error("PayPal Error:", err);
@@ -112,41 +152,38 @@ console.log(orderid,"payment")
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Left Section */}
         <div className="md:col-span-2">
-  <h2 className="text-xl font-bold mb-2">Billing Information</h2>
-  
-  {/* Filter out 'cartId' and 'version' */}
-  <div className="grid grid-cols-2 gap-4">
-    {Object.entries(shippingInfo)
-      .filter(([key]) => key !== "cartID" && key !== "version")
-      .map(([key, value]) => (
-        <div key={key}>
-          <label htmlFor={key} className="block mb-1">
-            {key.charAt(0).toUpperCase() + key.slice(1)}
-          </label>
-          <input
-            type="text"
-            name={key}
-            id={key}
-            value={value || ""}
-            onChange={handleInputChange}
-            className="border p-2 rounded w-full"
-          />
-        </div>
-      ))}
-  </div>
-  
-  <div className="mt-4">
-    <input
-      type="checkbox"
-      onChange={handleCheckboxChange}
-      checked={showShippingInfo}
-    />
-    <label className="ml-2">
-      Billing and Shipping address are the same
-    </label>
-  </div>
-</div>
+          <h2 className="text-xl font-bold mb-2">Billing Information</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {Object.entries(shippingInfo)
+              .filter(([key]) => key !== "cartID" && key !== "version")
+              .map(([key, value]) => (
+                <div key={key}>
+                  <label htmlFor={key} className="block mb-1">
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </label>
+                  <input
+                    type="text"
+                    name={key}
+                    id={key}
+                    value={value || ""}
+                    onChange={handleInputChange}
+                    className="border p-2 rounded w-full"
+                  />
+                </div>
+              ))}
+          </div>
 
+          <div className="mt-4">
+            <input
+              type="checkbox"
+              onChange={handleCheckboxChange}
+              checked={showShippingInfo}
+            />
+            <label className="ml-2">
+              Billing and Shipping address are the same
+            </label>
+          </div>
+        </div>
 
         {/* Right Section */}
         <div>
@@ -155,6 +192,7 @@ console.log(orderid,"payment")
             totalPrice={cart?.totalPrice?.centAmount / 100}
             totalItems={cart?.totalLineItemQuantity}
           />
+
           {/* Stripe Payment */}
           <button
             className="p-2 rounded bg-blue-500 text-white w-full my-4"
@@ -166,18 +204,23 @@ console.log(orderid,"payment")
           {/* PayPal Payment */}
           <PayPalButtons
             style={{ layout: "horizontal", color: "silver" }}
-            onApprove={()=>{
-              localStorage.setItem("cartId", null);
-              localStorage.setItem("state", null);
-              localStorage.removeItem("cartId");
-              navigate(`/payment/${orderid}`)}}
+            onApprove={async () => {
+              try {
+                await handlePlaceOrder();
+                localStorage.removeItem("cartId");
+                localStorage.removeItem("state");
+                navigate(`/payment/${orderId}`);
+              } catch (error) {
+                console.error("PayPal order error:", error);
+              }
+            }}
             onError={onError}
           />
         </div>
       </div>
 
       {/* Footer */}
-      <CartFooter />
+      {/* <CartFooter /> */}
     </div>
   );
 };

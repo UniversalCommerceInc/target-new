@@ -9,6 +9,9 @@ import { Skeleton } from "@mui/material";
 import HomeCarousel from "../customer/Components/Carousel/HomeCarousel";
 import { homeCarouselData } from "../customer/Components/Carousel/HomeCaroselData";
 import { receiveGetContent, receiveProducts } from "../action";
+import EasterPromo from "../customer/Components/Home/EasterPromo";
+import AutumnWinterPromo from "../customer/Components/Home/AutumnWinterPromo";
+import FetchBannerContent from "./NewContent";
 
 // Lazy load components
 const HeaderTopSection = lazy(() =>
@@ -83,7 +86,6 @@ const Homepage = () => {
       });
     });
   }, []);
-
   return (
     <div className="mx-auto px-1">
       <Suspense
@@ -103,15 +105,15 @@ const Homepage = () => {
       </Suspense>
       <Suspense
         fallback={<Skeleton variant="rectangular" width="100%" height={118} />}
-      >
-        <SaleComponent />
+      ><EasterPromo/>
+        {/* <SaleComponent /> */}
       </Suspense>
-      <Suspense
+      {/* <Suspense
         fallback={<Skeleton variant="rectangular" width="100%" height={118} />}
       >
         <DiscountCard />
-      </Suspense>
-      <Suspense
+      </Suspense> */}
+      {/* <Suspense
         fallback={<Skeleton variant="rectangular" width="100%" height={118} />}
       >
         <div className="flex flex-col items-center justify-center p-8 bg-white dark:bg-zinc-900">
@@ -124,11 +126,11 @@ const Homepage = () => {
             </button>
           </div>
         </div>
-      </Suspense>
+      </Suspense> */}
       <Suspense
         fallback={<Skeleton variant="rectangular" width="100%" height={118} />}
-      >
-        <DiscountBanner />
+      ><AutumnWinterPromo/>
+        {/* <DiscountBanner /> */}
       </Suspense>
       <Suspense
         fallback={<Skeleton variant="rectangular" width="100%" height={118} />}
@@ -167,15 +169,15 @@ const Homepage = () => {
           <ToyClearance />
         </div>
       </Suspense>
-      <Suspense
+      {/* <Suspense
         fallback={<Skeleton variant="rectangular" width="100%" height={118} />}
       >
         <img
-          className="mt-10"
-          src="https://www.target.com.au/medias/sys_master/root/hc9/hd3/h00/h00/28460669861918/OnePass-Supercharge-5xFlybuys-Desktop.png"
+          className="mt-10 w-full h-1/2"
+          src="https://www.target.com.au/medias/sys_master/root/h2d/h56/h00/h00/29346737913886/200325-260325-40OFF-B-BONDS-Menu-Web.png?attachment=true"
           alt=""
         />
-      </Suspense>
+      </Suspense> */}
       <Suspense
         fallback={<Skeleton variant="rectangular" width="100%" height={118} />}
       >
@@ -191,7 +193,7 @@ const Homepage = () => {
       >
         <NewsletterSignup />
       </Suspense>
-      <Suspense
+      {/* <Suspense
         fallback={<Skeleton variant="rectangular" width="100%" height={118} />}
       >
         <FooterSection />
@@ -200,7 +202,7 @@ const Homepage = () => {
         fallback={<Skeleton variant="rectangular" width="100%" height={118} />}
       >
         <PaymentOptionsSection />
-      </Suspense>
+      </Suspense> */}
     </div>
   );
 };

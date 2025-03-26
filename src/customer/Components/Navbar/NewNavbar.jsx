@@ -16,7 +16,7 @@ function NewNavbar() {
         </div>
         <div className="relative">
             <Link to="/">
-          <img src="https://www.target.com.au/medias/auth0/target.svg" alt="Target" />
+          <img src="https://www.target.com.au/medias/sys_master/root/h98/hab/15709749411870/240621-Half-Roundel-Logo-v2.png" alt="Target" className="h-20"/>
           </Link>
         </div>
       </div>

@@ -20,6 +20,7 @@ import CartItem from "../Cart/CartItem";
 import { useSelector } from "react-redux";
 import { getCartItems } from "../../../action/cart";
 import { setShippingMethod, createOrders, addPaymentToOrder, createPayment } from "../../../action";
+import ShippingDetails from "./pickupstore/Shippingdetails";
 
 const PaymentMethod = () => {
   const [showShippingAddress, setShowShippingAddress] = useState(false);
@@ -45,10 +46,7 @@ const PaymentMethod = () => {
         
         // Fetch shipping methods (mocked data)
         const shippingData = {
-          limit: 20,
-          offset: 0,
-          count: 2,
-          total: 2,
+         
           results: [
             {
               id: "a9493bb2-7d0c-4ea9-9038-daa3794f080b",
@@ -57,6 +55,14 @@ const PaymentMethod = () => {
             {
               id: "38a9635b-d62c-45b2-885e-b8d1c63aebea",
               name: "Express US",
+            },
+            {
+              id: "6bfbe97d-b70f-4766-9549-5a4ed1ee78ab",
+              name: "Pickup From Store",
+            },
+            {
+              id: "2502988c-b3ed-4c1a-9a22-8e4731fd26c7",
+              name: "Ship From Store",
             },
           ],
         };
@@ -95,7 +101,7 @@ const PaymentMethod = () => {
       }
   
       const res = await setShippingMethod({
-        shippingID: selectedShippingMethod,
+        shippingID: "a9493bb2-7d0c-4ea9-9038-daa3794f080b",//id
         CartID: CartData?.id,
         version: cartVersion,
       });
@@ -116,34 +122,35 @@ const PaymentMethod = () => {
       console.log("Order Creation Response:", order);
   
       localStorage.setItem("orderId", order?.id);
-      
+      localStorage.setItem("orderVersion", order?.version);
+
       // Create payment
-      const paymentData = {
+      // const paymentData = {
        
-          centAmount: CartData.totalPrice.centAmount
+      //     centAmount: CartData.totalPrice.centAmount
        
-      };
+      // };
   
-      const paymentResponse = await createPayment(paymentData);
-      if (!paymentResponse || !paymentResponse.id) {
-        throw new Error("Failed to create payment");
-      }
+      // const paymentResponse = await createPayment(paymentData);
+      // if (!paymentResponse || !paymentResponse.id) {
+      //   throw new Error("Failed to create payment");
+      // }
   
-      console.log("Payment Creation Response:", paymentResponse);
+      // console.log("Payment Creation Response:", paymentResponse);
   
-      // Add payment to order
-      const paymentOrderData = {
-        orderID: order.id,
-        paymentID: paymentResponse.id,
-        version: order.version,
-      };
+      // // Add payment to order
+      // const paymentOrderData = {
+      //   orderID: order.id,
+      //   paymentID: paymentResponse.id,
+      //   version: order.version,
+      // };
   
-      const addPaymentResponse = await addPaymentToOrder(paymentOrderData);
-      if (!addPaymentResponse) {
-        throw new Error("Failed to add payment to order");
-      }
+      // const addPaymentResponse = await addPaymentToOrder(paymentOrderData);
+      // if (!addPaymentResponse) {
+      //   throw new Error("Failed to add payment to order");
+      // }
   
-      console.log("Add Payment To Order Response:", addPaymentResponse);
+      // console.log("Add Payment To Order Response:", addPaymentResponse);
   
       navigate("/checkout?step=3");
   
@@ -173,14 +180,14 @@ const PaymentMethod = () => {
             component="h1"
             className={`text-lg font-bold mb-8`}
           >
-            Select Shipping Method
+           Choose Shipping Method:
           </Typography>
           <hr />
 
           {/* Shipping Method Selection */}
-          <FormControl component="fieldset" className="mt-6">
-            <FormLabel component="legend">Choose Shipping Method:</FormLabel>
-            <RadioGroup
+          {/* <FormControl component="fieldset" className="mt-6 py-6"> */}
+            {/* <FormLabel component="legend">Choose Shipping Method:</FormLabel> */}
+            {/* <RadioGroup
               value={selectedShippingMethod}
               onChange={(e) => setSelectedShippingMethod(e.target.value)}
             >
@@ -193,8 +200,8 @@ const PaymentMethod = () => {
                 />
               ))}
             </RadioGroup>
-          </FormControl>
-
+          </FormControl> */}
+<ShippingDetails/>
           {/* Address Section */}
           <div className={`text-zinc-600 mb-4 mt-6`}>
             <AddressCard address={shippingAddress} />

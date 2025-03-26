@@ -71,13 +71,13 @@ const RightModal = ({ open, toggleModal, name }) => {
         </div>
         {jwt ? (
           <List>
-            <Link to="/profile">
+            {/* <Link to="/profile">
               <CustomListItem
                 icon={<FaRegAddressCard size={30} />}
                 altText="Personal Details"
                 title="Personal Details"
               />
-            </Link>
+            </Link> */}
             <Divider />
             <Link to="/order-history">
               <CustomListItem

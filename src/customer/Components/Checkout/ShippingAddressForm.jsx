@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import OrderSummary from "./OrderSummary";
 import { setBillingAddress, setShippingAddress } from "../../../action";
 import { getCartItems } from "../../../action/cart";
+import HCLForm from "./HclForm";
 
 
 const ShippingAddressForm = ({ handleNext }) => {
@@ -298,6 +299,7 @@ const ShippingAddressForm = ({ handleNext }) => {
             {isLoading ? "PROCESSING..." : "NEXT"}
           </button>
         </form>
+        {/* <HCLForm /> */}
       </div>
       <div className="lg:w-[35%] mb-6 lg:mb-0">
         <OrderSummary />

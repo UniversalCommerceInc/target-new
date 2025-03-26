@@ -4,20 +4,8 @@ import { useDispatch } from "react-redux";
 import { ordersById } from "../../../action";
 import { FaLongArrowAltLeft, FaCheck } from "react-icons/fa";
 
-import PersonIcon from "@mui/icons-material/Person";
-import HomeIcon from "@mui/icons-material/Home";
-import LocationCityIcon from "@mui/icons-material/LocationCity";
-import MapIcon from "@mui/icons-material/Map";
-import MailIcon from "@mui/icons-material/Mail";
-import FlagIcon from "@mui/icons-material/Flag";
-import PhoneIcon from "@mui/icons-material/Phone";
-import {
-  FaUser,
-  FaPhone,
-  FaHome,
-  FaMapMarkerAlt,
-  FaGlobe,
-} from "react-icons/fa";
+
+
 import styled, { keyframes } from "styled-components";
 import AddressCard from "../adreess/AdreessCard";
 import HeaderTop from "../Navbar/HeaderTop";
@@ -507,6 +495,9 @@ const OrderDetails = () => {
               marginBottom: "25px",
             }}
           >
+             <div>
+          
+        </div>
             <Summary>
               <SummaryRow>
                 <span style={{ fontSize: "23px", marginRight: "110px" }}>

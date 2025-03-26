@@ -106,6 +106,22 @@ const ItemsOrdered = styled.div`
   }
 `;
 
+const AdditionalDetails = styled.div`
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  p {
+    margin: 5px 0;
+    strong {
+      font-weight: bold;
+    }
+  }
+`;
+
+
+
 const AddressInfo = styled.div`
   margin-top: 20px;
   padding: 0 50px;
@@ -139,6 +155,10 @@ const PaymentSuccess = () => {
   const dispatch = useDispatch();
   const { newOrder } = useSelector((store) => store);
   const [showConfetti, setShowConfetti] = useState(true);
+  const formatPrice = (price) => 
+    price 
+      ? `$${(price / 100).toFixed(2)}`
+      : "$0.00";
 
   useEffect(() => {
       const fetchData = async () => {
@@ -232,6 +252,31 @@ const PaymentSuccess = () => {
             <p>Your order # is: {data?.id}</p>
             <Link to="/search">Continue Shopping</Link>
           </ThankYou>
+          
+          <AdditionalDetails>
+            <p>
+              <strong>Order State:</strong> {data?.orderState}
+            </p>
+            <p>
+              <strong>Payment State:</strong> {data?.paymentState}
+            </p>
+            <p>
+              <strong>Shipping Method:</strong>{" "}
+              {data?.shippingInfo?.shippingMethodName}
+            </p>
+            {/* <p>
+              <strong>Tax Rate:</strong> {data?.taxedPrice?.taxPortions[0]?.rate * 100}%
+            </p> */}
+            {/* <p>
+              <strong>Total Tax:</strong>{" "}
+              {amountPrint(data?.taxedPrice?.totalTax?.centAmount)}
+            </p> */}
+            <p>
+              <strong>Discount Type:</strong>{" "}
+              {data?.discountTypeCombination?.type}
+            </p>
+          </AdditionalDetails>
+          
           <NewCollection>
             <img
               src="https://media.licdn.com/dms/image/D5609AQEKV8C8BlSebw/company-featured_1128_635/0/1682660170927?e=2147483647&v=beta&t=oGMtkTPcLEGPVVV2T3nkhRoSxb47dFb0AZWXkH5WGfA"
@@ -245,40 +290,50 @@ const PaymentSuccess = () => {
             <table>
               <thead>
                 <tr>
+                  <th>Image</th>
                   <th>Product Name</th>
-                  <th>Id</th>
+                  <th>SKU</th>
                   <th>Price</th>
-                  <th>Qty</th>
+                  <th>Quantity</th>
                   <th>Subtotal</th>
                 </tr>
               </thead>
               <tbody>
-                {data?.lineItems?.map((el, index) => (
-                  <tr key={index}>
-                    <td>{el?.name["en-US"]}</td>
-                    <td>{el?.id}</td>
-                    <td>{amountPrint(el?.price.value.centAmount / 100)}</td>
-                    <td>Ordered: {el?.quantity}</td>
-                    <td>{amountPrint(el?.totalPrice.centAmount / 100)}</td>
+                {data?.lineItems?.map((item) => (
+                  <tr key={item?.id}>
+                    <td>
+                      <img src={item?.variant?.images[0]?.url} alt="Product" />
+                    </td>
+                    <td>{item?.name["en-US"]}</td>
+                    <td>{item?.variant?.sku}</td>
+                    <td>{formatPrice(item?.price?.value?.centAmount)}</td>
+                    <td>{item?.quantity}</td>
+                    <td>{formatPrice(item?.totalPrice?.centAmount)}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan="4">Subtotal</td>
-                  <td>{amountPrint(data?.totalPrice?.centAmount / 100)}</td>
+                  <td colSpan="5">Subtotal</td>
+                  <td>{formatPrice(data?.taxedPrice?.totalNet?.centAmount)}</td>
                 </tr>
                 <tr>
-                  <td colSpan="4">Shipping & Handling</td>
-                  <td>{amountPrint(data?.shippingWithTax) || 0}</td>
+                  <td colSpan="5">Tax (EU VAT)</td>
+                  <td>{formatPrice(data?.taxedPrice?.totalTax?.centAmount)}</td>
                 </tr>
                 <tr>
-                  <td colSpan="4">Grand Total</td>
-                  <td>{amountPrint(data?.totalPrice?.centAmount / 100)}</td>
+                  <td colSpan="5">Shipping</td>
+                  <td>{formatPrice(data?.shippingInfo?.price?.centAmount)}</td>
+                </tr>
+                <tr>
+                  <td colSpan="5"><strong>Total</strong></td>
+                  <td><strong>{formatPrice(data?.totalPrice?.centAmount)}</strong></td>
                 </tr>
               </tfoot>
             </table>
+
           </ItemsOrdered>
+          
         </Section>
         <div style={{ width: "100%" }}>
           <AddressInfo>

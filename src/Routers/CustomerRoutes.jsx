@@ -28,6 +28,7 @@ import Login from "../customer/Components/Auth/LoginPage";
 import RegisterPage from "../customer/Components/Auth/RegisterPage";
 import TransactionComponent from "../customer/Components/Checkout/TransactionComponent";
 import { App } from "../customer/Components/App";
+import HCLForm from "../customer/Components/Checkout/HclForm";
 
 const CustomerRoutes = () => {
   const location = useLocation();
@@ -78,7 +79,7 @@ const CustomerRoutes = () => {
           <Route path="/payment/:orderId" element={<PaymentSuccess />}></Route>
           {/* <Route path="/shops" element={<Product />}></Route> */}
           <Route path="/search" element={<App />}></Route>
-
+          <Route path="/eNew_Signup" element={<HCLForm />}></Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer/> 

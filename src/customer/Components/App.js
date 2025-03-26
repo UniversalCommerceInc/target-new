@@ -201,7 +201,7 @@ export function App() {
             </div>
             <section className="container-results">
               <header className="container-header container-options ">
-                <SortBy
+                {/* <SortBy
                   className="container-option bg-white text-gray-700 py-3 px-5 rounded-lg shadow-lg transition transform hover:scale-105 hover:bg-blue-100 focus:outline-none focus:ring-4 focus:ring-blue-300"
                   items={[
                     { label: "Sort by Featured", value: indexName },
@@ -209,7 +209,7 @@ export function App() {
                     { label: "Price Descending", value: `${indexName}_price_desc` },
                   ]}
                   defaultRefinement={indexName}
-                />
+                /> */}
                 <HitsPerPage
                   className="container-option bg-white text-gray-700 py-3 px-5 rounded-lg shadow-lg transition transform hover:scale-105 hover:bg-blue-100 focus:outline-none focus:ring-4 focus:ring-blue-300"
                   items={[
