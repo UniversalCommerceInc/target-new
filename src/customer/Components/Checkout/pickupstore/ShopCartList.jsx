@@ -88,6 +88,7 @@ const ShopCartList = ({ shop, deliveryType, onClose, setSelectedOption }) => {
       console.log("Order Created:", order);
       localStorage.setItem("orderId", order?.id);
       localStorage.setItem("orderVersion", order?.version);
+      localStorage.setItem("price", order?.totalPrice.centAmount);
 
       // Step 3: Associate Store
       const associateStoreRes = await associateStore({

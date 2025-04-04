@@ -18,7 +18,8 @@ const TransactionComponent = () => {
   const navigate = useNavigate();
 
   // State for cart and user authentication
-  const cart = useSelector((state) => state?.cartItems?.cartItems);
+  const cart1 = localStorage.getItem("order")
+  const [cart,setCart]=useState(JSON.parse(cart1));
   const auth = useSelector((state) => state?.auth?.user?.user);
   
   // Use state for orderID instead of localStorage
@@ -41,7 +42,7 @@ const TransactionComponent = () => {
     mobile: "",
     email: "",
   });
-
+const amount=localStorage.getItem("price");
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
 
   useEffect(() => {
@@ -155,7 +156,7 @@ const TransactionComponent = () => {
           <h2 className="text-xl font-bold mb-2">Billing Information</h2>
           <div className="grid grid-cols-2 gap-4">
             {Object.entries(shippingInfo)
-              .filter(([key]) => key !== "cartID" && key !== "version")
+              .filter(([key]) => key !== "CartId" && key !== "version")
               .map(([key, value]) => (
                 <div key={key}>
                   <label htmlFor={key} className="block mb-1">
@@ -191,6 +192,7 @@ const TransactionComponent = () => {
           <ShippingComponent
             totalPrice={cart?.totalPrice?.centAmount / 100}
             totalItems={cart?.totalLineItemQuantity}
+            shippingCharge={cart?.shippingInfo?.price?.centAmount / 100}
           />
 
           {/* Stripe Payment */}
@@ -204,6 +206,23 @@ const TransactionComponent = () => {
           {/* PayPal Payment */}
           <PayPalButtons
             style={{ layout: "horizontal", color: "silver" }}
+            createOrder={(data, actions) => {
+              // if (!amount) {
+              //   toast.error("Invalid order amount");
+              //   return;
+              // }
+          
+              return actions.order.create({
+                purchase_units: [
+                  {
+                    amount: {
+                      currency_code: "USD",
+                      value: (cart?.totalPrice?.centAmount / 100).toFixed(2), // Convert cents to dollars
+                    },
+                  },
+                ],
+              });
+            }}
             onApprove={async () => {
               try {
                 await handlePlaceOrder();

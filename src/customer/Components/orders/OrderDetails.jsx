@@ -2,15 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { ordersById } from "../../../action";
-import { FaLongArrowAltLeft, FaCheck } from "react-icons/fa";
-
-
+import { FaLongArrowAltLeft, FaCheck, FaTruck, FaBox, FaMoneyBillWave, FaShippingFast } from "react-icons/fa";
 
 import styled, { keyframes } from "styled-components";
 import AddressCard from "../adreess/AdreessCard";
 import HeaderTop from "../Navbar/HeaderTop";
 import Navigation from "../Navbar/Navigation";
-// import Spinner from "../Spinners/Spinner";s
 
 const Container = styled.div`
   font-family: Arial, sans-serif;
@@ -60,12 +57,52 @@ const OrderDate = styled.span`
 `;
 
 const StatusBadge = styled.span`
-  background-color: #e0e7ff;
-  color: #ff6404;
+  background-color: ${(props) => props.bgColor || "#e0e7ff"};
+  color: ${(props) => props.textColor || "#ff6404"};
   padding: 5px 10px;
   border-radius: 5px;
   margin-top: 10px;
+  margin-right: 10px;
   display: inline-block;
+`;
+
+const InfoCardContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+`;
+
+const InfoCard = styled.div`
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  flex: 1;
+  min-width: 200px;
+  
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+const InfoCardTitle = styled.h3`
+  font-size: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const InfoCardContent = styled.p`
+  font-size: 14px;
+  color: #333;
+  margin: 5px 0;
 `;
 
 const OrderProgress = styled.div`
@@ -80,44 +117,6 @@ const OrderProgress = styled.div`
     flex-direction: row;
     padding: 10px 0;
   }
-`;
-
-const ProgressStep = styled.div`
-  text-align: center;
-
-  @media (max-width: 768px) {
-    margin-bottom: 10px;
-  }
-`;
-
-const ProgressCircle = styled.div`
-  background-color: ${(props) => (props.active ? "#fb0e0e" : "#e0e0e0")};
-  color: ${(props) => (props.active ? "#fff" : "#888")};
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: auto;
-`;
-
-const InputGroup = styled.div`
-  margin-bottom: 10px;
-  width: 100%;
-`;
-
-const Label = styled.label`
-  font-size: 14px;
-  color: #888;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  margin-top: 5px;
 `;
 
 const ItemSection = styled.div`
@@ -194,12 +193,11 @@ const Summary = styled.div`
   }
 `;
 
-// style={{ display: 'flex', gap: '20px', width: '100%', justifyContent: 'space-between', }}
-
 const AddressCont = styled.div`
   display: flex;
   gap: 20px;
   width: 100%;
+  margin-top: 20px;
   justify-content: space-between;
   @media (max-width: 768px) {
     display: block;
@@ -292,18 +290,59 @@ const Step = styled.div`
   animation: ${({ active }) => (active ? pulseAnimation : "none")} 1s infinite;
 `;
 
+// New components for tax details
+const TaxDetails = styled.div`
+  margin-top: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+`;
+
+const TaxTitle = styled.h3`
+  font-size: 18px;
+  margin-bottom: 15px;
+`;
+
+const TaxTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+
+const TaxRow = styled.tr`
+  border-bottom: 1px solid #e0e0e0;
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const TaxCell = styled.td`
+  padding: 8px 5px;
+  font-size: 14px;
+  color: #333;
+`;
+
+const TaxHeader = styled.th`
+  text-align: left;
+  padding: 8px 5px;
+  font-size: 14px;
+  font-weight: bold;
+`;
+
 const getStatusColor = (status) => {
   switch (status) {
     case "Delivered":
-      return "#4caf50";
+      return { bg: "#e6f7e6", text: "#4caf50" };
+    case "Open":
+      return { bg: "#fff4e5", text: "#ff9800" };
     case "Pending":
-      return "#ff9800";
+      return { bg: "#fff4e5", text: "#ff9800" };
     case "PaymentAuthorized":
-      return "#008cff";
+    case "Paid":
+      return { bg: "#e6f0ff", text: "#008cff" };
     case "Cancelled":
-      return "#f44336";
+      return { bg: "#ffebee", text: "#f44336" };
     default:
-      return "#000";
+      return { bg: "#e0e0e0", text: "#000" };
   }
 };
 
@@ -328,16 +367,17 @@ const OrderDetails = () => {
 
     fetchData();
   }, [orderId]);
-  // console.log("data", data);
+  
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return `${date.toLocaleDateString()}  `;
   };
 
-  const amountPrint = (price) => {
+  const amountPrint = (price, currencyCode = "USD") => {
     if (typeof price !== "undefined" && price !== null) {
+      const symbol = currencyCode === "EUR" ? "€" : "$";
       const formattedPrice =
-        "$" +
+        symbol +
         price.toLocaleString("en-IN", {
           maximumFractionDigits: 2,
           minimumFractionDigits: 2,
@@ -349,6 +389,7 @@ const OrderDetails = () => {
   };
 
   function formatText(str) {
+    if (!str) return "";
     return str
       .split(" ")
       .map((word) => {
@@ -356,7 +397,9 @@ const OrderDetails = () => {
       })
       .join(" ");
   }
+  
   function formatDateTime(dateString, num) {
+    if (!dateString) return "";
     const date = new Date(dateString);
 
     // If num is 4, add 4 days to the date
@@ -387,6 +430,30 @@ const OrderDetails = () => {
       : `${formattedTime}, ${formattedDate}`;
   }
 
+  const getDeliveryTypeDisplay = (type) => {
+    switch(type) {
+      case "ship":
+        return "Ship To Address";
+      case "pickup":
+        return "In-Store Pickup";
+      case "delivery":
+        return "Home Delivery";
+      default:
+        return type || "N/A";
+    }
+  };
+
+  const getOrderStateDisplay = (state) => {
+    switch(state) {
+      case "Open":
+        return "Processing";
+      case "Complete":
+        return "Delivered";
+      default:
+        return state || "N/A";
+    }
+  };
+
   return (
     <>
       {/* {loading && <Spinner />} */}
@@ -399,8 +466,6 @@ const OrderDetails = () => {
         </BackLink>
         <OrderTitle>Order Details #{data?.id}</OrderTitle>
         <OrderDate>Placed On: {formatDate(data?.createdAt)}</OrderDate>
-        {/* <StatusBadge>SHIPPING</StatusBadge> */}
-
         <ProgressWidget>
           {data?.orderState === "Open" && (
             <ProgressContainer>
@@ -436,7 +501,7 @@ const OrderDetails = () => {
               </Step>
             </ProgressContainer>
           )}
-          <div
+          {/* <div
             style={{
               display: "flex",
               justifyContent: "space-between",
@@ -454,7 +519,7 @@ const OrderDetails = () => {
             <div style={{ textAlign: "center" }}>
               <p style={{ fontSize: "16px", fontWeight: "bold" }}>SHIPPING</p>
               <p style={{ fontSize: "14px", color: "#888" }}>
-                Shipped with FedEX
+                {data?.shippingInfo?.shippingMethodName || "Standard Shipping"}
               </p>
             </div>
             <div style={{ textAlign: "end" }}>
@@ -463,29 +528,116 @@ const OrderDetails = () => {
                 {`Estimated date: ${formatDateTime(data?.createdAt, 4)}`}
               </p>
             </div>
-          </div>
+          </div> */}
         </ProgressWidget>
+        <div style={{ marginTop: "15px" }}>
+          {data?.orderState && (
+            <StatusBadge 
+              bgColor={getStatusColor(data.orderState).bg} 
+              textColor={getStatusColor(data.orderState).text}
+            >
+              ORDER STATUS: {getOrderStateDisplay(data.orderState)}
+            </StatusBadge>
+          )}
+          
+          {data?.paymentState && (
+            <StatusBadge 
+              bgColor={getStatusColor(data.paymentState).bg} 
+              textColor={getStatusColor(data.paymentState).text}
+            >
+              PAYMENT: {data.paymentState}
+            </StatusBadge>
+          )}
+          
+          {data?.custom?.fields?.deliveryType && (
+            <StatusBadge 
+              bgColor="#e6f7e6" 
+              textColor="#4caf50"
+            >
+              DELIVERY TYPE: {getDeliveryTypeDisplay(data.custom.fields.deliveryType)}
+            </StatusBadge>
+          )}
+        </div>
+        
+        <InfoCardContainer>
+          <InfoCard>
+            <InfoCardTitle><FaMoneyBillWave /> Payment Details</InfoCardTitle>
+            <InfoCardContent>
+              <strong>Status:</strong> {data?.paymentState || "N/A"}
+            </InfoCardContent>
+            {data?.transactionFee && (
+              <InfoCardContent>
+                <strong>Transaction Fee:</strong> Applied
+              </InfoCardContent>
+            )}
+            {data?.paymentInfo?.payments && (
+              <InfoCardContent>
+                <strong>Payment ID:</strong> {data.paymentInfo.payments[0]?.id || "N/A"}
+              </InfoCardContent>
+            )}
+          </InfoCard>
+          
+          <InfoCard>
+            <InfoCardTitle><FaShippingFast /> Shipping Details</InfoCardTitle>
+            <InfoCardContent>
+              <strong>Method:</strong> {data?.shippingInfo?.shippingMethodName || "N/A"}
+            </InfoCardContent>
+            <InfoCardContent>
+              <strong>Delivery Type:</strong> {getDeliveryTypeDisplay(data?.custom?.fields?.deliveryType)}
+            </InfoCardContent>
+            <InfoCardContent>
+              <strong>Price:</strong> {data?.shippingInfo?.price?.centAmount ? 
+                amountPrint(data.shippingInfo.price.centAmount/100, data.shippingInfo.price.currencyCode) : 
+                "N/A"}
+            </InfoCardContent>
+          </InfoCard>
+          
+          <InfoCard>
+            <InfoCardTitle><FaBox /> Order Info</InfoCardTitle>
+            <InfoCardContent>
+              <strong>Order Date:</strong> {formatDateTime(data?.createdAt)}
+            </InfoCardContent>
+            <InfoCardContent>
+              <strong>Last Updated:</strong> {formatDateTime(data?.lastModifiedAt)}
+            </InfoCardContent>
+            {data?.store && (
+              <InfoCardContent>
+                <strong>Store:</strong> {data.store.key}
+              </InfoCardContent>
+            )}
+          </InfoCard>
+        </InfoCardContainer>
+
+       
 
         <h1 style={{ fontSize: "22px", fontWeight: "bold" }}>Items Ordered</h1>
         <ItemSection>
           {data?.lineItems?.map((el, index) => (
-            <>
-              <Item key={index}>
-                <ItemImage src={el?.variant.images[0].url} alt="Item 1" />
+            <React.Fragment key={index}>
+              <Item>
+                <ItemImage src={el?.variant.images && el.variant.images[0]?.url} alt={el?.name?.["en-US"] || "Product"} />
                 <ItemDetails style={{ marginLeft: "100px" }}>
                   <ItemTitle style={{ maxWidth: "230px" }}>
-                    {formatText(el?.variant.sku)}
+                    {el?.name?.["en-US"] || formatText(el?.variant.sku)}
                   </ItemTitle>
+                  <p style={{ fontSize: "14px", color: "#888", margin: "5px 0" }}>
+                    SKU: {el?.variant.sku}
+                  </p>
+                  {el?.variant.key && (
+                    <p style={{ fontSize: "14px", color: "#888", margin: "5px 0" }}>
+                      Product Key: {el.variant.key}
+                    </p>
+                  )}
                 </ItemDetails>
                 <ItemDetails>
                   <ItemQuantity>{el?.quantity}</ItemQuantity>
                 </ItemDetails>
                 <ItemPrice>
-                  {amountPrint(el?.price.value.centAmount / 100)}
+                  {amountPrint(el?.price.value.centAmount / 100, el?.price.value.currencyCode)}
                 </ItemPrice>
               </Item>
               <hr style={{ border: "1px solid #e0e0e0" }} />
-            </>
+            </React.Fragment>
           ))}
 
           <div
@@ -495,24 +647,31 @@ const OrderDetails = () => {
               marginBottom: "25px",
             }}
           >
-             <div>
-          
-        </div>
             <Summary>
               <SummaryRow>
                 <span style={{ fontSize: "23px", marginRight: "110px" }}>
                   Subtotal
                 </span>
                 <span style={{ fontSize: "23px" }}>
-                  {amountPrint(data?.totalPrice?.centAmount / 100)}
+                  {data?.totalPrice && amountPrint(data.totalPrice.centAmount / 100, data.totalPrice.currencyCode)}
                 </span>
               </SummaryRow>
               <SummaryRow>
                 <span style={{ fontSize: "23px" }}>Shipping </span>
                 <span style={{ color: "#fc2008", fontSize: "23px" }}>
-                  {amountPrint(data?.shippingWithTax)}
+                  {data?.shippingInfo?.price && amountPrint(data.shippingInfo.price.centAmount / 100, data.shippingInfo.price.currencyCode)}
                 </span>
               </SummaryRow>
+              
+              {data?.taxedPrice && (
+                <SummaryRow>
+                  <span style={{ fontSize: "23px" }}>Tax </span>
+                  <span style={{ fontSize: "23px" }}>
+                    {amountPrint(data.taxedPrice.totalTax.centAmount / 100, data.taxedPrice.totalTax.currencyCode)}
+                  </span>
+                </SummaryRow>
+              )}
+              
               <SummaryRow
                 style={{ borderTop: "2px solid #e0e0e0", marginTop: "18px" }}
                 total
@@ -521,12 +680,47 @@ const OrderDetails = () => {
                   Total
                 </span>
                 <span style={{ fontSize: "26px", margin: "18px 0" }}>
-                  {amountPrint(data?.totalPrice?.centAmount / 100)}
+                  {data?.totalPrice && amountPrint(data.totalPrice.centAmount / 100, data.totalPrice.currencyCode)}
                 </span>
               </SummaryRow>
             </Summary>
           </div>
         </ItemSection>
+        
+        {data?.taxedPrice && (
+          <TaxDetails>
+            <TaxTitle>Tax Details</TaxTitle>
+            <TaxTable>
+              <thead>
+                <TaxRow>
+                  <TaxHeader>Name</TaxHeader>
+                  <TaxHeader>Rate</TaxHeader>
+                  <TaxHeader>Amount</TaxHeader>
+                </TaxRow>
+              </thead>
+              <tbody>
+                {data.taxedPrice.taxPortions.map((portion, index) => (
+                  <TaxRow key={index}>
+                    <TaxCell>{portion.name}</TaxCell>
+                    <TaxCell>{(portion.rate * 100).toFixed(1)}%</TaxCell>
+                    <TaxCell>
+                      {amountPrint(portion.amount.centAmount / 100, portion.amount.currencyCode)}
+                    </TaxCell>
+                  </TaxRow>
+                ))}
+                <TaxRow>
+                  <TaxCell colSpan="2"><strong>Total Tax</strong></TaxCell>
+                  <TaxCell>
+                    <strong>
+                      {amountPrint(data.taxedPrice.totalTax.centAmount / 100, data.taxedPrice.totalTax.currencyCode)}
+                    </strong>
+                  </TaxCell>
+                </TaxRow>
+              </tbody>
+            </TaxTable>
+          </TaxDetails>
+        )}
+        
         <AddressCont>
           <Div style={{ width: "100%" }}>
             <AddressCard

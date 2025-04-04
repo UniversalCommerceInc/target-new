@@ -1,5 +1,6 @@
 // import { get } from "../api/APIController";
 
+import { json } from "react-router-dom";
 import { get, post } from "../api/config/APIController";
 // import { useDispatch, useSelector } from "react-redux";
 import { getCartItems } from "./cart";
@@ -228,6 +229,8 @@ export const createOrders = (orderData) => {
     post(url, orderData)
       .then((response) => {
         if (response.status === 201) {
+          localStorage.setItem("order",JSON.stringify(response.data));
+          
           resolve(response.data);
         }
       })

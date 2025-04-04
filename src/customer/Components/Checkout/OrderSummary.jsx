@@ -153,6 +153,7 @@ const OrderSummary = () => {
         <ShippingComponent
           totalPrice={cartState?.totalPrice?.centAmount / 100}
           totalItems={cartState.totalLineItemQuantity}
+          shippingCharge={cartState?.shippingInfo?.price?.centAmount / 100}
         />
       </div>
       <hr />

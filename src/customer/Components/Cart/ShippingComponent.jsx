@@ -53,9 +53,9 @@ export const ProgressBar = ({ totalPrice }) => {
   );
 };
 
-const OrderSummary = ({ totalPrice, totalItems }) => {
-  const shippingCost = totalPrice >= 120 ? 0 : 4;
-  const finalTotal = totalPrice + shippingCost;
+const OrderSummary = ({ totalPrice, totalItems,shippingCharge }) => {
+  const shippingCost = shippingCharge ;
+  const finalTotal = totalPrice - shippingCost;
   return (
     <div className={` ${borderTClass} ${pt4Class} `}>
       <h2
@@ -67,7 +67,7 @@ const OrderSummary = ({ totalPrice, totalItems }) => {
         className={`${flexClass} ${justifyBetweenClass} ${textSMClass} ${mb2Class}`}
       >
         <span>{`Sub total (${totalItems} item)`}</span>
-        <span className={fontSemiBoldClass}>${totalPrice}</span>
+        <span className={fontSemiBoldClass}>${finalTotal}</span>
       </div>
       <div
         className={`${flexClass} ${justifyBetweenClass} ${textSMClass} ${mb2Class}`}
@@ -84,14 +84,15 @@ const OrderSummary = ({ totalPrice, totalItems }) => {
             totalPrice >= 120 ? textGreenClass : textRedClass
           }`}
         >
-          {totalPrice >= 120 ? "FREE" : "$4"}
+          {/* {totalPrice >= 120 ? "FREE" : "$4"} */}
+          ${shippingCharge}
         </span>
       </div>
       <div
         className={`${flexClass} ${justifyBetweenClass} ${textLGClass} ${fontBoldClass} ${mb2Class}`}
       >
         <span>Total</span>
-        <span>${finalTotal}</span>
+        <span>${totalPrice}</span>
       </div>
       <div className={`${textSMClass} ${textZincClass} ${mb4Class}`}>
         {/* <span>Inc. GST</span>
@@ -167,7 +168,7 @@ const CheckoutComponent = () => {
 
 // export default CheckoutComponent;
 
-const ShippingComponent = ({ totalPrice, totalItems }) => {
+const ShippingComponent = ({ totalPrice, totalItems,shippingCharge }) => {
   let shippingMessage;
   if (totalPrice < 60) {
     shippingMessage = "You're $60 away to get FREE standard shipping";
@@ -190,7 +191,7 @@ const ShippingComponent = ({ totalPrice, totalItems }) => {
           {shippingMessage}
         </div>
         <ProgressBar totalPrice={totalPrice} />
-        <OrderSummary totalPrice={totalPrice} totalItems={totalItems} />
+        <OrderSummary totalPrice={totalPrice} totalItems={totalItems} shippingCharge={shippingCharge || 0} />
       </div>
       {location.pathname === "/cart" && <CheckoutComponent />}
     </>
