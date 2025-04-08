@@ -377,7 +377,7 @@ const OrderDetails = () => {
     if (typeof price !== "undefined" && price !== null) {
       const symbol = currencyCode === "EUR" ? "€" : "$";
       const formattedPrice =
-        symbol +
+        "$" +
         price.toLocaleString("en-IN", {
           maximumFractionDigits: 2,
           minimumFractionDigits: 2,
@@ -633,7 +633,7 @@ const OrderDetails = () => {
                   <ItemQuantity>{el?.quantity}</ItemQuantity>
                 </ItemDetails>
                 <ItemPrice>
-                  {amountPrint(el?.price.value.centAmount / 100, el?.price.value.currencyCode)}
+                  {amountPrint(el?.price.value.centAmount / 100, el?.price?.value?.currencyCode)}
                 </ItemPrice>
               </Item>
               <hr style={{ border: "1px solid #e0e0e0" }} />
@@ -653,24 +653,24 @@ const OrderDetails = () => {
                   Subtotal
                 </span>
                 <span style={{ fontSize: "23px" }}>
-                  {data?.totalPrice && amountPrint(data.totalPrice.centAmount / 100, data.totalPrice.currencyCode)}
+                  { amountPrint((data?.totalPrice?.centAmount - data?.shippingInfo?.price?.centAmount) / 100, data?.totalPrice?.currencyCode)}
                 </span>
               </SummaryRow>
               <SummaryRow>
                 <span style={{ fontSize: "23px" }}>Shipping </span>
                 <span style={{ color: "#fc2008", fontSize: "23px" }}>
-                  {data?.shippingInfo?.price && amountPrint(data.shippingInfo.price.centAmount / 100, data.shippingInfo.price.currencyCode)}
+                  {data?.shippingInfo?.price && amountPrint(data?.shippingInfo.price?.centAmount / 100, data?.shippingInfo?.price?.currencyCode)}
                 </span>
               </SummaryRow>
               
-              {data?.taxedPrice && (
+              {/* {data?.taxedPrice && (
                 <SummaryRow>
                   <span style={{ fontSize: "23px" }}>Tax </span>
                   <span style={{ fontSize: "23px" }}>
                     {amountPrint(data.taxedPrice.totalTax.centAmount / 100, data.taxedPrice.totalTax.currencyCode)}
                   </span>
                 </SummaryRow>
-              )}
+              )} */}
               
               <SummaryRow
                 style={{ borderTop: "2px solid #e0e0e0", marginTop: "18px" }}
@@ -687,7 +687,7 @@ const OrderDetails = () => {
           </div>
         </ItemSection>
         
-        {data?.taxedPrice && (
+        {/* {data?.taxedPrice && (
           <TaxDetails>
             <TaxTitle>Tax Details</TaxTitle>
             <TaxTable>
@@ -719,7 +719,7 @@ const OrderDetails = () => {
               </tbody>
             </TaxTable>
           </TaxDetails>
-        )}
+        )} */}
         
         <AddressCont>
           <Div style={{ width: "100%" }}>

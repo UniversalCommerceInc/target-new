@@ -1,11 +1,12 @@
 import axios from "axios";
 import LocalStorageService from "../../storage/LocalStorageService";
-const obtainAccessToken = localStorage.getItem("obtainaccesstoken");
+const obtainAccessToken = localStorage.getItem("ObtainAccessToken");
 const claimToken = localStorage.getItem("authTokenFoundary");
+const admintoken = localStorage.getItem("admin-token");
 
 // console.log("User Access Token:", userAccessToken);
-console.log("Obtain Access Token:", obtainAccessToken);
-console.log("Claim Token:", claimToken);
+// console.log("Obtain Access Token:", obtainAccessToken);
+// console.log("Claim Token:", claimToken);
 // console.log("process.env.REACT_APP_PUBLIC_URL,", process.env);
 // baseURL: "http://49.206.253.146:1773/",
  const instance = axios.create({
@@ -15,14 +16,14 @@ const localStorageService = LocalStorageService.getService();
 const userAccessToken = localStorageService.getUserAuthAccessToken();
 console.log("userAccessToken", userAccessToken);
 // let accesstoken="5cd59bcb6f99cec3fc932e5d6f7fdabea59d96b8bf8d9b7980d2ac4bb955ff19"
-const jwt = localStorage.getItem("jwt");
+const jwt = localStorage.getItem("admin-token");
 instance.interceptors.request.use(
   (config) => {
     config.headers = {
       "Content-Type": "application/json",
     };
-    if (userAccessToken) {
-      config.headers["Authorization"] = `Bearer ${userAccessToken}`;
+    if (userAccessToken || obtainAccessToken) {
+      config.headers["Authorization"] = `Bearer ${userAccessToken || obtainAccessToken}`;
     }
     if (claimToken) {
       config.headers["X-Voltmx-Authorization"] = claimToken;
@@ -76,9 +77,12 @@ instance2.interceptors.request.use(
     if (userAccessToken) {
       // config.headers["User-Access-Token"] = userAccessToken;
     }
-    if (userAccessToken) {
-      config.headers["Authorization"] = `Bearer ${userAccessToken}`;
+    if (userAccessToken || obtainAccessToken) {
+      config.headers["Authorization"] = `Bearer ${userAccessToken  }`;
     }
+    // if (userAccessToken ) {
+    //   config.headers["Authorization"] = `Bearer ${userAccessToken }`;
+    // }
     if (claimToken) {
       config.headers["X-Voltmx-Authorization"] = claimToken;
     }
