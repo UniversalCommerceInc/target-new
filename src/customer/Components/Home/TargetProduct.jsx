@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 
 
@@ -32,35 +32,43 @@ const TargetProducts = () => {
         })
         .catch((error) => console.error("Error fetching banners:", error));
     }, []);
-    const constructImageUrl = (resourceUri) => {
+    const constructImageUrl = useCallback((resourceUri) => {
       if (!resourceUri) return "";
-      const match = resourceUri.match(/\/([\w-]+)\/[^/]+\?MOD=AJPERES/);
-      return match
-        ? `https://dx.sbx0328.play.hclsofy.com/wps/wcm/connect/${match[1]}/190325-stocktake-sale-BG-Destkop.webp?MOD=AJPERES&ContentCache=NONE&CACHE=NONE&CACHEID=ROOTWORKSPACE-${match[1]}-plAFqpv`
-        : "";
-    };
+    
+      // Remove query parameters if present
+      const cleanUri = resourceUri.split("?")[0];
+      const parts = cleanUri.split("/");
+    
+      const uuid = parts[4]; // e.g. 6369ab73-...
+      const filename = parts[5]; // e.g. 010525-StarWars-...
+    
+      const prefix = filename?.split("-")[0]; // e.g. 010525
+    
+      return `https://dx.sbx0189.play.hclsofy.com/wps/wcm/connect/${uuid}/${filename}?MOD=AJPERES&CACHEID=ROOTWORKSPACE-${uuid}/${prefix}-nu0.55K`;
+    }, []);
+    
     console.log(data)
     const products = [
       {
-        imageUrl: constructImageUrl(data?.data?.Image1?.data?.image?.resourceUri?.value),
+        imageUrl: constructImageUrl(data?.data?.Image1?.data?.image?.resourceUri?.value?.n) ||"https://www.target.com.au/medias/sys_master/root/h98/h46/h00/h00/29453780582430/300425-Matching-Mini-Me-NAT.jpg",
         altText: "Lily Loves",
-        title: "Kids’ Autumn Winter Fleece",
-        description: "Cosy cotton blends that bring the warm and fuzzies.",
+        title: "Matching Mini Me",
+        description: "Coordinated PJs for mum and the kids make for picture-perfect duos.",
         link:data?.data?.Link1?.data?.linkElement?.destination?.value,
-        buttonText:data?.data?.Link1?.data?.linkElement?.display?.value
+        buttonText:data?.data?.Image1Link?.data?.linkElement?.display?.value
       },
       {
-        imageUrl: constructImageUrl(data?.data?.Image2?.data?.image?.resourceUri?.value),
+        imageUrl: constructImageUrl(data?.data?.Image2?.data?.image?.resourceUri?.value?.n)||"https://www.target.com.au/medias/sys_master/root/h25/h54/h00/h00/29453780975646/300425-Lego-Botanicals-set-NAT.jpg",
         altText: "New Season Home",
-        title: "New Season Home",
-        description: "Perfectly proportioned for heights 160cm (5ft 3) and below, no matter what shape you are.", link:data?.data?.Link2?.data?.linkElement?.destination?.value,
+        title: "LEGO® Botanicals Sets",
+        description: "Beyond the joy of building, these sets serve as an elegant decor for any space", link:data?.data?.Link2?.data?.linkElement?.destination?.value,
         buttonText:data?.data?.Link2?.data?.linkElement?.display?.value
       },
       {
-        imageUrl: constructImageUrl(data?.data?.Image3?.data?.image?.resourceUri?.value),
+        imageUrl: constructImageUrl(data?.data?.Image3?.data?.image?.resourceUri?.value) || "https://www.target.com.au/medias/sys_master/root/hf1/h49/h00/h00/29454696349726/300425-Flannelette-Bedding-NAT-v1.jpg",
         altText: "Lily Loves Collection",
-        title: "Lily Loves Collection",
-        description: "New season looks, trending fits and forever favourites..",
+        title: "Flannelette Bedding",
+        description: "Stay snug & comfortable all night long with our flannelette bedding range.",
         link:data?.data?.Link3?.data?.linkElement?.destination?.value,
         buttonText:data?.data?.Link3?.data?.linkElement?.display?.value
       },

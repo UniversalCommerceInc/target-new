@@ -41,7 +41,6 @@ const fetchShops = async () => {
       try {
         setIsLoading(true);
         const res = await getStore();
-
         const mappedShops = res
           .map((store) => {
             const latitude = store?.custom?.fields?.latitude;
@@ -53,7 +52,7 @@ const fetchShops = async () => {
                 sellers: [
                   {
                     sellerId: store.key,
-                    name: store.name["en-US"],
+                    name: store.name.en,
                     coordinates: { lat: latitude, lng: longitude },
                     googleMapsLink: store?.custom?.fields?.googleMapsLink,
                   },

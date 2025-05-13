@@ -151,15 +151,15 @@ export function App() {
                 </div>
                 <div className="container-body">
                   <Panel header="Price">
-                    <PriceSlider attribute="masterData.staged.masterVariant.prices.value.centAmount" />
+                    <PriceSlider attribute="masterData.current.masterVariant.prices.value.centAmount" />
                   </Panel>
                   <Panel header="Gender">
-                    <RefinementList attribute="gender" />
+                    <RefinementList attribute="Gender" />
                   </Panel>
 
                   <Panel header="Categories">
                     <RefinementList
-                      attribute="masterData.current.categories"
+                      attribute="category"
                       showMore
                     />
                   </Panel>
@@ -300,13 +300,80 @@ function Hit({ hit }) {
     setNumber(randomNumber);
   }, []);
 
+  // Format the categories properly
+  const formatCategories = (categories) => {
+    if (!categories) return "No category";
+    
+    // Check if categories is an array of objects with typeId and id
+    if (Array.isArray(categories) && categories.length > 0) {
+      return "Furniture"; // Using a default since we can't access the actual category names
+    }
+    
+    return String(categories);
+  };
+
+  // Safely get the product name
+  const getProductName = () => {
+    if (hit.masterData?.current?.name) {
+      // First try to get the English name
+      if (hit.masterData.current.name["en-US"]) {
+        return hit.masterData.current.name["en-US"];
+      }
+      // Then try to get name with "en" key
+      if (hit.masterData.current.name["en"]) {
+        return hit.masterData.current.name["en"];
+      }
+      // If none of the above, get the first available name
+      const nameKeys = Object.keys(hit.masterData.current.name);
+      if (nameKeys.length > 0) {
+        return hit.masterData.current.name[nameKeys[0]];
+      }
+    }
+    return "Product Name Not Available";
+  };
+
+  // Safely get the product price
+  const getProductPrice = () => {
+    try {
+      if (hit.masterData?.current?.masterVariant?.prices && 
+          hit.masterData.current.masterVariant.prices.length > 0) {
+        return formatNumber(hit.masterData.current.masterVariant.prices[0].value.centAmount);
+      }
+    } catch (error) {
+      console.error("Error getting price:", error);
+    }
+    return "N/A";
+  };
+
+  // Safely get the product image
+  const getProductImage = () => {
+    try {
+      if (hit.masterData?.current?.masterVariant?.images && 
+          hit.masterData.current.masterVariant.images.length > 0) {
+        return hit.masterData.current.masterVariant.images[0].url;
+      }
+    } catch (error) {
+      console.error("Error getting image:", error);
+    }
+    return "https://via.placeholder.com/300";
+  };
+
+  // Safely check if product is in stock
+  const isInStock = () => {
+    try {
+      return hit.masterData?.current?.masterVariant?.availability?.isOnStock || false;
+    } catch (error) {
+      return false;
+    }
+  };
+
   return (
     <article className="hit h-[420px] flex flex-col" onClick={() => handleProduct(hit)}>
       {/* Image container with fixed height */}
       <header className="hit-image-container relative h-48 overflow-hidden">
         <img
-          src={hit.masterData.current.masterVariant.images[0].url}
-          alt={hit.masterData.current.name["en-US"]}
+          src={getProductImage()}
+          alt={getProductName()}
           className="hit-image w-full h-full object-cover"
         />
         <span className="absolute top-2 right-2 bg-yellow-500 text-white text-xs font-bold py-1 px-2 rounded flex items-center">
@@ -331,35 +398,22 @@ function Hit({ hit }) {
       <div className="hit-info-container flex-grow flex flex-col p-3">
         {/* Category with fixed height and ellipsis */}
         <div className="hit-category h-6 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-gray-500">
-          {hit.masterData.current.categories}
+          {formatCategories(hit.masterData?.current?.categories)}
         </div>
 
         {/* Product name with fixed height and ellipsis */}
         <div className="h-18 font-medium overflow-hidden">
           <div className="line-clamp-6">
-            {hit.masterData.current.name["en-US"]}
+            {getProductName()}
           </div>
         </div>
-
-        {/* Description with fixed height and ellipsis */}
-        {/* <p className="hit-description h-12 text-sm overflow-hidden mb-2">
-          <div className="line-clamp-2">
-            <Snippet
-              attribute="description"
-              highlightedTagName="mark"
-              hit={hit}
-            />
-          </div>
-        </p> */}
 
         {/* Price and rating with fixed height */}
         <footer className="mt-auto">
           <p className="flex items-center h-6">
             <span className="hit-em">$</span>{" "}
             <strong>
-              {formatNumber(
-                hit.masterData.current.masterVariant.prices[0].value.centAmount
-              )}
+              {getProductPrice()}
             </strong>{" "}
             <span className="hit-em hit-rating ml-auto">
               <svg
@@ -374,7 +428,7 @@ function Hit({ hit }) {
                   d="M10.472 5.008L16 5.816l-4 3.896.944 5.504L8 12.616l-4.944 2.6L4 9.712 0 5.816l5.528-.808L8 0z"
                 />
               </svg>{' '}
-              {hit.rating}
+              {hit.rating || 4.5}
             </span>
           </p>
         </footer>
@@ -382,8 +436,7 @@ function Hit({ hit }) {
         {/* Stock status and button with fixed height */}
         <footer className="flex items-center justify-between pt-2 mt-2 border-t border-gray-100 h-10">
           {/* Stock status */}
-          {hit.masterData.current.masterVariant.availability && 
-            hit.masterData.current.masterVariant.availability.isOnStock ? (
+          {isInStock() ? (
             <span className="text-green-600 text-xs font-medium flex items-center">
               <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>

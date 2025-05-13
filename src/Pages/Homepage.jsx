@@ -12,6 +12,7 @@ import { receiveGetContent, receiveProducts } from "../action";
 import EasterPromo from "../customer/Components/Home/EasterPromo";
 import AutumnWinterPromo from "../customer/Components/Home/AutumnWinterPromo";
 import FetchBannerContent from "./NewContent";
+import ImageGallery from "../customer/Components/Home/DiscountImages";
 
 // Lazy load components
 const HeaderTopSection = lazy(() =>
@@ -80,7 +81,7 @@ const Homepage = () => {
 
   useEffect(() => {
     receiveGetContent().then((data) => {
-      console.log("this is banners", data);
+      // console.log("this is banners", data);
       startTransition(() => {
         setBanners(data);
       });
@@ -129,12 +130,17 @@ const Homepage = () => {
       </Suspense> */}
       <Suspense
         fallback={<Skeleton variant="rectangular" width="100%" height={118} />}
-      ><AutumnWinterPromo/>
+      ><ImageGallery/>
+        {/* <AutumnWinterPromo/> */}
         {/* <DiscountBanner /> */}
       </Suspense>
       <Suspense
         fallback={<Skeleton variant="rectangular" width="100%" height={118} />}
       >
+        
+      >
+        <FlybuysPage />
+      
         <div className="flex flex-col items-center justify-center p-8 bg-white dark:bg-zinc-900">
           <div className="text-center mt-[100px] pt-8 pb-8">
             <button className="bg-black text-white mt-4 py-2 px-4 rounded-full">
@@ -178,11 +184,7 @@ const Homepage = () => {
           alt=""
         />
       </Suspense> */}
-      <Suspense
-        fallback={<Skeleton variant="rectangular" width="100%" height={118} />}
-      >
-        <FlybuysPage />
-      </Suspense>
+      
       <Suspense
         fallback={<Skeleton variant="rectangular" width="100%" height={118} />}
       >

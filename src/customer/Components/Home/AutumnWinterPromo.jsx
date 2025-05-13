@@ -10,7 +10,7 @@ export default function AutumnWinterPromo() {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "https://m100003239002.demo-hclvoltmx.net/services/DXContentApi/BannerContent4",
+          "https://m100003239002.demo-hclvoltmx.net/services/DXContentApi/BannerContent2",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -22,8 +22,8 @@ export default function AutumnWinterPromo() {
           {
             title: jsonData?.data?.LeftRichText?.data?.value || "Default Title",
             images: [
-              constructImageUrl(jsonData?.data?.Left_Image1?.data?.image?.resourceUri?.value) || "",
-              constructImageUrl(jsonData?.data?.Left_Image2?.data?.image?.resourceUri?.value) || "",
+              constructImageUrl(jsonData?.data?.Image1?.data?.image?.resourceUri?.value) || "",
+              constructImageUrl(jsonData?.data?.Image2?.data?.image?.resourceUri?.value) || "",
             ],
             links: [
               {
@@ -67,10 +67,15 @@ export default function AutumnWinterPromo() {
   }, []);
   const constructImageUrl = useCallback((resourceUri) => {
     if (!resourceUri) return "";
-    const match = resourceUri.match(/\/([\w-]+)\/[^/]+\?MOD=AJPERES/);
-    return match
-      ? `https://dx.sbx0328.play.hclsofy.com/wps/wcm/connect/${match[1]}/190325-stocktake-sale-BG-Destkop.webp?MOD=AJPERES&ContentCache=NONE&CACHE=NONE&CACHEID=ROOTWORKSPACE-${match[1]}-plAFqpv`
-      : "";
+  
+    const parts = resourceUri.split("/");
+  
+    // Extract UUID and file name
+    const uuid = parts[4]; // 4c00ac5d-...
+    const filename = parts[5]; // 170425-Mothers-Day-LP-Hero-DesktopV5.webp
+    const prefix = filename?.split("-")[0]; // 170425
+  
+    return `https://dx.sbx0189.play.hclsofy.com/wps/wcm/connect/${uuid}/${filename}?MOD=AJPERES&CACHEID=ROOTWORKSPACE-${uuid}/${prefix}-nu0.55K`;
   }, []);
   useEffect(() => {
     const interval = setInterval(() => {

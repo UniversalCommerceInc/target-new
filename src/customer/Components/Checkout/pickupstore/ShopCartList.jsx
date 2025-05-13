@@ -113,9 +113,9 @@ const ShopCartList = ({ shop, deliveryType, onClose, setSelectedOption }) => {
   // ✅ Continue button handler
   const handleContinue = () => {
     if (deliveryType === "pickup") {
-      handlePlaceOrder("6bfbe97d-b70f-4766-9549-5a4ed1ee78ab");
+      handlePlaceOrder("da64256d-b45c-4a73-94ae-6e90f66d6480");
     } else {
-      handlePlaceOrder("2502988c-b3ed-4c1a-9a22-8e4731fd26c7");
+      handlePlaceOrder("ec0f5ba4-682d-4de5-845b-8dce7a058756");
     }
 
     notify();

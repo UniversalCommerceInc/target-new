@@ -7,14 +7,24 @@ export default function EasterPromo() {
   const bannersRef = useRef([]);
   const ctaRef = useRef({});
   const descriptionRef = useRef("");
-
-  const constructImageUrl = useCallback((resourceUri) => {
+const textRef = useRef("");
+const logoRef = useRef("");
+ const constructImageUrl = useCallback((resourceUri) => {
     if (!resourceUri) return "";
-    const match = resourceUri.match(/\/([\w-]+)\/[^/]+\?MOD=AJPERES/);
-    return match
-      ? `https://dx.sbx0328.play.hclsofy.com/wps/wcm/connect/${match[1]}/190325-stocktake-sale-BG-Destkop.webp?MOD=AJPERES&ContentCache=NONE&CACHE=NONE&CACHEID=ROOTWORKSPACE-${match[1]}-plAFqpv`
-      : "";
+  
+    // Remove query parameters if present
+    const cleanUri = resourceUri.split("?")[0];
+    const parts = cleanUri.split("/");
+  
+    const uuid = parts[4]; // e.g. 6369ab73-...
+    const filename = parts[5]; // e.g. 010525-StarWars-...
+  
+    const prefix = filename?.split("-")[0]; // e.g. 010525
+  
+    return `https://dx.sbx0189.play.hclsofy.com/wps/wcm/connect/${uuid}/${filename}?MOD=AJPERES&CACHEID=ROOTWORKSPACE-${uuid}/${prefix}-nu0.55K`;
   }, []);
+  
+  
 
   useEffect(() => {
     fetch("https://m100003239002.demo-hclvoltmx.net/services/DXContentApi/BannerContent", {
@@ -24,21 +34,38 @@ export default function EasterPromo() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("API Response:", data);
+        console.log("API Response:1", data);
         bannersRef.current = [
-          constructImageUrl(data.data.Image.data.image.resourceUri.value),
-          constructImageUrl(data.data["preview-image"].data.image.resourceUri.value),
-          constructImageUrl(data.data["Graphic Image"].data.image.resourceUri.value),
+          constructImageUrl(data.data.Taget_left_Image.data.image.resourceUri.value),
+    
         ];
         ctaRef.current = {
-          text: data.data["CTA Link"].data.linkElement.display.value,
-          link: data.data["CTA Link"].data.linkElement.destination.value,
+          text: data.data.Target_link1.data.linkElement.display.value,
+          link: data.data.Target_link1.data.linkElement.destination.value,
+          text2: data.data.Target_link2.data.linkElement.display.value,
+          link2: data.data.Target_link2.data.linkElement.destination.value,
+          text3: data.data.Target_link3.data.linkElement.display.value,
+          link3: data.data.Target_link3.data.linkElement.destination.value,
         };
-        descriptionRef.current = data.data.Description.data.value;
+        textRef.current = [data.data.Target_Text1.data.value,data.data.Target_Text2.data.value,data.data.Target_Text3.data.value,data.data.Target_Text4.data.value]
+        logoRef.current = [
+          constructImageUrl(data.data.Taget_Right_Logo.data.image.resourceUri.value),
+        ];
+        // Target_Text1=data.Target_link1.data.linkElement.display.value;
+        // Target_Text2=data.data.Target_Text2.data.value;
+        // Target_Text3=data.data.Target_Text3.data.value;
+        // Target_Text4=data.data.Target_Text4.data.value;
+        // Taget_left_Image=data.data.Taget_left_Image.data.image.resourceUri.value;
+        // Taget_Right_Logo=data.data.Taget_Right_Logo.data.image.resourceUri.value;
+        // Target_Text1=data.data.Target_link1.data.linkElement.display.value;
+        // Target_link1=x.data.Target_link1.data.linkElement.destination.value;
+        // Target_link2=x.data.Target_link2.data.linkElement.destination.value;
+        // Target_link3=x.data.Target_link3.data.linkElement.destination.value;
+        descriptionRef.current = data.data.Target_Text1.data.value;
       })
       .catch((error) => console.error("Error fetching banners:", error));
   }, [constructImageUrl]);
-
+console.log(bannersRef.current)
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prevIndex) => (prevIndex + 1) % bannersRef.current.length);
@@ -55,13 +82,15 @@ export default function EasterPromo() {
       {/* Left Side Content */}
       <div className="absolute left-4 w-1/2 text-white   ">
       <h1
-  className="custom-heading"
+  className="custom-heading text-red-700 text-2xl font-bold mb-4"
   dangerouslySetInnerHTML={{ __html: decodedHTML }}
 ></h1>
 
-
+<h1 >{textRef.current[1]}</h1>
+{/* <h1>{textRef.current[2]}</h1> */}
+{/* <h1>{textRef.current[3]}</h1> */}
         <a href={ctaRef.current.link} target="_blank" rel="noopener noreferrer">
-          <button className="mt-6 px-6 py-3 bg-white text-red-700 font-semibold rounded-lg hover:bg-gray-200 transition">
+          <button className="mt-6 px-6 py-3 bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition">
             {ctaRef.current.text}
           </button>
         </a>

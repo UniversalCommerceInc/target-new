@@ -5,12 +5,20 @@ const FlybuysComponent = () => {
   const [img,setImg]=useState([])
   const [cta,setCta]=useState([])
   const constructImageUrl = useCallback((resourceUri) => {
-      if (!resourceUri) return "";
-      const match = resourceUri.match(/\/([\w-]+)\/[^/]+\?MOD=AJPERES/);
-      return match
-        ? `https://dx.sbx0328.play.hclsofy.com/wps/wcm/connect/${match[1]}/190325-stocktake-sale-BG-Destkop.webp?MOD=AJPERES&ContentCache=NONE&CACHE=NONE&CACHEID=ROOTWORKSPACE-${match[1]}-plAFqpv`
-        : "";
-    }, []);
+    if (!resourceUri) return "";
+  
+    // Remove query parameters if present
+    const cleanUri = resourceUri.split("?")[0];
+    const parts = cleanUri.split("/");
+  
+    const uuid = parts[4]; // e.g. 6369ab73-...
+    const filename = parts[5]; // e.g. 010525-StarWars-...
+  
+    const prefix = filename?.split("-")[0]; // e.g. 010525
+  
+    return `https://dx.sbx0189.play.hclsofy.com/wps/wcm/connect/${uuid}/${filename}?MOD=AJPERES&CACHEID=ROOTWORKSPACE-${uuid}/${prefix}-nu0.55K`;
+  }, []);
+  
   
     useEffect(() => {
 
@@ -30,9 +38,9 @@ const FlybuysComponent = () => {
           );
    
           const data = await response.json();
-          setImg([constructImageUrl(data?.data?.Image?.data?.image?.resourceUri?.value),constructImageUrl(data?.data?.Image1?.data?.image?.resourceUri?.value)])
-          setCta([data?.data["CTA Link"].data?.linkElement?.destination.value,data?.data["CTA Secondary Link"]?.data?.linkElement?.destination?.value])
-          console.log("API Response:3", data);
+          setImg([constructImageUrl(data?.data.Image1.data.image.resourceUri.value),constructImageUrl(data?.data.Image2.data.image.resourceUri.value)])
+          setCta([data.data.OverallCTA.data.linkElement.destination.value,data?.data.OverallCTA.data.linkElement.destination.value])
+          console.log("API Response:3", data,img);
         } catch (error) {
           console.error("Error fetching data:", error);
         }
@@ -40,6 +48,8 @@ const FlybuysComponent = () => {
    
       fetchData();
     }, []);
+    // https://dx.sbx0189.play.hclsofy.com/wps/wcm/connect/4c00ac5d-9a68-4a0f-b582-ed2ee3f8a710/170425-Mothers-Day-LP-Hero-DesktopV5.webp?MOD=AJPERES&CACHEID=ROOTWORKSPACE-4c00ac5d-9a68-4a0f-b582-ed2ee3f8a710/170425-nu0.55K
+    // "https://dx.sbx0189.play.hclsofy.com/wps/wcm/connect/6369ab73-4149-4a7e-b603-ad25c9daee4e/010525-StarWars-ELGO-Promo-2Col-Banner-Desktopv4.webp?MOD=AJPERES?MOD=AJPERES&CACHEID=ROOTWORKSPACE-6369ab73-4149-4a7e-b603-ad25c9daee4e/010525-nu0.55K"
   return (
     <div className="p-2 dark:bg-zinc-800 text-center">
       

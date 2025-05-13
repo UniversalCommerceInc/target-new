@@ -74,7 +74,7 @@ const NewArrivals = ({title}) => {
         {products.length > 0 ? (
           <Slider {...settings}>
             {products.map((product) => {
-              const details = product.masterData.current.description["en-US"];
+              const details = product.masterData.current.name.en;
               const price = product.masterData.current.masterVariant.prices[0].value.centAmount
                 ? `$${product.masterData.current.masterVariant.prices[0].value.centAmount/100}`
                 : "Out of Stock";
@@ -88,7 +88,7 @@ const NewArrivals = ({title}) => {
                     {/* Product Image */}
                     <img
                       className="w-full h-70 object-cover"
-                      src={product._highlightResult.assets.value}
+                      src={product.masterData.current.masterVariant.images[0].url}
                       alt={details}
                     />
 

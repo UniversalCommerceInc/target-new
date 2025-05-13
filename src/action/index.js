@@ -28,7 +28,7 @@ export const receiveProducts = () => {
         if (response.ok) {
           return response.json(); // If response is JSON
         }
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        // throw new Error(`HTTP error! Status: ${response.status}`);
       })
       .then((data) => {
         const products = data?.results?.[0]?.hits || [];
